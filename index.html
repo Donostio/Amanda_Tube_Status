@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>London Tube Status</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7fafc;
+        }
+        .container {
+            max-width: 1000px;
+            padding: 1rem;
+        }
+        .status-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #ffffff;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+        }
+        .status-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .status-indicator {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 9999px; /* full circle */
+            flex-shrink: 0;
+            margin-right: 1rem;
+        }
+        .status-description {
+            font-weight: 600;
+            text-transform: capitalize;
+            color: #4a5568;
+        }
+        .line-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2d3748;
+        }
+        .detail-message {
+            font-size: 0.875rem;
+            color: #718096;
+            margin-top: 0.5rem;
+        }
+        /* Custom colors based on your slides for better visual feedback */
+        .status-good {
+            background-color: #48bb78; /* Green */
+        }
+        .status-minor {
+            background-color: #f6e05e; /* Yellow */
+        }
+        .status-severe, .status-suspended {
+            background-color: #ef4444; /* Red */
+        }
+        .status-planned {
+            background-color: #f472b6; /* Pinkish-Red from your slide image */
+        }
+        .status-unknown {
+            background-color: #a0aec0; /* Gray */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4 min-h-screen flex items-center justify-center">
+    <div class="container mx-auto p-4 bg-white rounded-xl shadow-lg">
+        <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">
+            London Tube Status
+        </h1>
+        <div id="status-container" class="space-y-4">
+            <!-- Loading indicator will be displayed initially -->
+            <div id="loading" class="text-center text-gray-500 font-medium p-8">
+                <svg class="animate-spin h-8 w-8 text-gray-400 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p class="mt-2">Fetching the latest status...</p>
+            </div>
+            <!-- Dynamic content will be injected here by JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const statusContainer = document.getElementById('status-container');
+            const loadingIndicator = document.getElementById('loading');
+            
+            // --- IMPORTANT: PASTE YOUR DEPLOYED GOOGLE APPS SCRIPT URL HERE ---
+            const GOOGLE_APPS_SCRIPT_URL = 'PASTE_YOUR_WEB_APP_URL_HERE';
+
+            const linesToMonitor = ['northern', 'bakerloo', 'victoria'];
+
+            /**
+             * Fetches the status for all lines from the Google Apps Script proxy.
+             * @returns {Promise<Array<Object>>} - A promise that resolves with all lines' status data.
+             */
+            async function fetchAllLinesStatus() {
+                let retries = 0;
+                const maxRetries = 5;
+                let delay = 1000; // 1 second
+                
+                while (retries < maxRetries) {
+                    try {
+                        const response = await fetch(GOOGLE_APPS_SCRIPT_URL);
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return await response.json();
+                    } catch (error) {
+                        console.error(`Attempt ${retries + 1}: Could not fetch status. Error: ${error.message}`);
+                        retries++;
+                        if (retries < maxRetries) {
+                            console.log(`Retrying in ${delay}ms...`);
+                            await new Promise(resolve => setTimeout(resolve, delay));
+                            delay *= 2; // Exponential backoff
+                        } else {
+                            throw new Error(`Failed to fetch status after ${maxRetries} retries.`);
+                        }
+                    }
+                }
+            }
+
+            /**
+             * Renders a single status box for a given tube line.
+             * @param {Object} lineData - The data object for a single line from the API.
+             */
+            function renderStatusBox(lineData) {
+                const lineName = lineData.lineName;
+                const statusDescription = lineData.statusDescription || 'Unknown Status';
+                const detailMessage = lineData.disruptionText || '';
+
+                let statusClass = 'status-unknown';
+                const lowerStatus = statusDescription.toLowerCase();
+
+                if (lowerStatus.includes('good service')) {
+                    statusClass = 'status-good';
+                } else if (lowerStatus.includes('minor delays')) {
+                    statusClass = 'status-minor';
+                } else if (lowerStatus.includes('severe delays') || lowerStatus.includes('suspended') || lowerStatus.includes('no service')) {
+                    statusClass = 'status-severe';
+                } else if (lowerStatus.includes('planned closure')) {
+                    statusClass = 'status-planned';
+                }
+
+                // Create the HTML for the status box
+                const box = document.createElement('div');
+                box.className = 'status-box flex items-start';
+                
+                box.innerHTML = `
+                    <div class="status-indicator ${statusClass}"></div>
+                    <div class="flex-grow">
+                        <h2 class="line-name">${lineName}</h2>
+                        <p class="status-description">${statusDescription}</p>
+                        ${detailMessage ? `<p class="detail-message mt-1 text-gray-600">${detailMessage}</p>` : ''}
+                    </div>
+                `;
+                statusContainer.appendChild(box);
+            }
+
+            /**
+             * Main function to fetch and render all line statuses.
+             */
+            async function displayAllStatuses() {
+                try {
+                    const allLineStatuses = await fetchAllLinesStatus();
+                    
+                    // Filter the results to only include the lines we are monitoring
+                    const monitoredStatuses = allLineStatuses.filter(line => 
+                        linesToMonitor.includes(line.lineId.toLowerCase())
+                    );
+
+                    // Clear existing content and hide loading indicator
+                    statusContainer.innerHTML = '';
+
+                    monitoredStatuses.forEach(lineData => {
+                        if (lineData) {
+                            renderStatusBox(lineData);
+                        }
+                    });
+
+                } catch (error) {
+                    console.error('Failed to display all statuses:', error);
+                    statusContainer.innerHTML = `<p class="text-center text-red-500 font-medium p-8">An error occurred: ${error.message}. Please check your custom API endpoint and network connection.</p>`;
+                }
+            }
+
+            // Run the main function on page load
+            displayAllStatuses();
+
+            // Set up a refresh interval to get the latest status
+            setInterval(displayAllStatuses, 60000); // Refresh every 60 seconds (60000 ms)
+        });
+    </script>
+</body>
+</html>
