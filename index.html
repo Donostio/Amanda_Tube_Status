@@ -73,7 +73,7 @@
 <body class="bg-gray-100 p-4 min-h-screen flex items-center justify-center">
     <div class="container mx-auto p-4 bg-white rounded-xl shadow-lg">
         <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">
-            Amanda Tube Status
+            London Tube Status
         </h1>
         <div id="status-container" class="space-y-4">
             <!-- Loading indicator will be displayed initially -->
@@ -94,35 +94,52 @@
             const loadingIndicator = document.getElementById('loading');
             
             // --- IMPORTANT: PASTE YOUR DEPLOYED GOOGLE APPS SCRIPT URL HERE ---
-            const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyGLRPe9zqZFFZQ2FVcRC9D2SPN9m7r2N0-V1G6kLBcbTjQ0MXXZmRdpsQTE9VloTp7/exec';
+            const GOOGLE_APPS_SCRIPT_URL = 'PASTE_YOUR_WEB_APP_URL_HERE';
 
             const linesToMonitor = ['northern', 'bakerloo', 'victoria'];
 
             /**
-             * Fetches the status for all lines from the Google Apps Script proxy.
-             * @returns {Promise<Array<Object>>} - A promise that resolves with all lines' status data.
+             * Fetches the status for a specific line from the Google Apps Script proxy.
+             * @param {string} lineId The ID of the line to fetch (e.g., 'northern').
+             * @returns {Promise<Array<Object>>} - A promise that resolves with the line's status data.
              */
-            async function fetchAllLinesStatus() {
+            async function fetchLineStatus(lineId) {
+                if (GOOGLE_APPS_SCRIPT_URL === 'PASTE_YOUR_WEB_APP_URL_HERE') {
+                    throw new Error("Google Apps Script URL is not configured. Please paste your deployed web app URL into the code.");
+                }
+
+                const apiUrl = `${GOOGLE_APPS_SCRIPT_URL}?line=${lineId}`;
+
                 let retries = 0;
                 const maxRetries = 5;
-                let delay = 1000; // 1 second
+                let delay = 1000;
                 
                 while (retries < maxRetries) {
                     try {
-                        const response = await fetch(GOOGLE_APPS_SCRIPT_URL);
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
+                        const response = await fetch(apiUrl);
+                        const data = await response.json();
+                        
+                        // Check if the response from the Apps Script is an error object.
+                        if (data && data.error) {
+                            throw new Error(`Apps Script Error: ${data.error}`);
                         }
-                        return await response.json();
+
+                        // The API returns an array, so we expect the first element to be our data.
+                        if (Array.isArray(data) && data.length > 0) {
+                            return data[0]; 
+                        } else {
+                            // If the array is empty, we handle it as a specific error.
+                            throw new Error(`No status information found for line: ${lineId}.`);
+                        }
                     } catch (error) {
-                        console.error(`Attempt ${retries + 1}: Could not fetch status. Error: ${error.message}`);
+                        console.error(`Attempt ${retries + 1}: Could not fetch status for ${lineId}. Error: ${error.message}`);
                         retries++;
                         if (retries < maxRetries) {
                             console.log(`Retrying in ${delay}ms...`);
                             await new Promise(resolve => setTimeout(resolve, delay));
-                            delay *= 2; // Exponential backoff
+                            delay *= 2;
                         } else {
-                            throw new Error(`Failed to fetch status after ${maxRetries} retries.`);
+                            throw new Error(`Failed to fetch status for ${lineId} after ${maxRetries} retries. Check your Apps Script logs for more details.`);
                         }
                     }
                 }
@@ -170,33 +187,37 @@
              */
             async function displayAllStatuses() {
                 try {
-                    const allLineStatuses = await fetchAllLinesStatus();
+                    const fetchPromises = linesToMonitor.map(lineId => fetchLineStatus(lineId));
+                    const allLineStatuses = await Promise.allSettled(fetchPromises);
                     
-                    // Filter the results to only include the lines we are monitoring
-                    const monitoredStatuses = allLineStatuses.filter(line => 
-                        linesToMonitor.includes(line.lineId.toLowerCase())
-                    );
-
                     // Clear existing content and hide loading indicator
                     statusContainer.innerHTML = '';
+                    
+                    const successfulStatuses = allLineStatuses
+                        .filter(result => result.status === 'fulfilled' && result.value)
+                        .map(result => result.value);
 
-                    monitoredStatuses.forEach(lineData => {
-                        if (lineData) {
+                    if (successfulStatuses.length === 0) {
+                        statusContainer.innerHTML = `<p class="text-center text-gray-500 font-medium p-8">No status information could be retrieved. Please check your Google Apps Script URL and API key.</p>`;
+                    } else {
+                        successfulStatuses.forEach(lineData => {
                             renderStatusBox(lineData);
-                        }
-                    });
+                        });
+                    }
 
+                    // Log any failed promises for debugging.
+                    const failedPromises = allLineStatuses.filter(result => result.status === 'rejected');
+                    if (failedPromises.length > 0) {
+                        console.error("Failed to fetch one or more line statuses:", failedPromises);
+                    }
                 } catch (error) {
-                    console.error('Failed to display all statuses:', error);
-                    statusContainer.innerHTML = `<p class="text-center text-red-500 font-medium p-8">An error occurred: ${error.message}. Please check your custom API endpoint and network connection.</p>`;
+                    console.error('An unhandled error occurred:', error);
+                    statusContainer.innerHTML = `<p class="text-center text-red-500 font-medium p-8">An unexpected error occurred: ${error.message}. Please check the console for details.</p>`;
                 }
             }
 
             // Run the main function on page load
             displayAllStatuses();
-
-            // Set up a refresh interval to get the latest status
-            setInterval(displayAllStatuses, 60000); // Refresh every 60 seconds (60000 ms)
         });
     </script>
 </body>
