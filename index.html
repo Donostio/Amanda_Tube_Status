@@ -108,7 +108,7 @@
             const victoriaLogo = document.getElementById('victoria-logo');
             const bakerlooLogo = document.getElementById('bakerloo-logo');
 
-            // Set the correct image URLs for the roundels using the new local paths
+            // Reverted to local image paths as requested
             const imageMap = {
                 northern: './images/Northern_line_roundel.svg.png',
                 bakerloo: './images/Bakerloo_line_roundel.svg.png',
@@ -127,7 +127,10 @@
                     return 'text-rose-400';
                 }
                 return 'text-gray-400';
-                 // Utility function to remove the line name and colon from the start of the detail message
+            }; // Fixed the missing closing brace here
+            
+            // Utility function to remove the line name and colon from the start of the detail message
+            // This function is now correctly placed outside the getStatusColor function
             const cleanDetailText = (text) => {
                 // Find the first colon, and return the rest of the string after it.
                 // If no colon is found, return the original text.
@@ -166,17 +169,17 @@
                     // Update Northern Line
                     northernStatus.textContent = data.northern.status;
                     northernStatus.className = `text-6xl md:text-5xl lg:text-6xl font-extrabold mb-2 ${getStatusColor(data.northern.status)}`;
-                    northernDetail.textContent = data.northern.reason;
+                    northernDetail.textContent = cleanDetailText(data.northern.reason);
 
                     // Update Victoria Line
                     victoriaStatus.textContent = data.victoria.status;
                     victoriaStatus.className = `text-6xl md:text-5xl lg:text-6xl font-extrabold mb-2 ${getStatusColor(data.victoria.status)}`;
-                    victoriaDetail.textContent = data.victoria.reason;
+                    victoriaDetail.textContent = cleanDetailText(data.victoria.reason);
 
                     // Update Bakerloo Line
                     bakerlooStatus.textContent = data.bakerloo.status;
                     bakerlooStatus.className = `text-6xl md:text-5xl lg:text-6xl font-extrabold mb-2 ${getStatusColor(data.bakerloo.status)}`;
-                    bakerlooDetail.textContent = data.bakerloo.reason;
+                    bakerlooDetail.textContent = cleanDetailText(data.bakerloo.reason);
 
                 } catch (error) {
                     console.error('Fetch error:', error);
