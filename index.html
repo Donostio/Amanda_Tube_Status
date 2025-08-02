@@ -127,6 +127,15 @@
                     return 'text-rose-400';
                 }
                 return 'text-gray-400';
+                 // Utility function to remove the line name and colon from the start of the detail message
+            const cleanDetailText = (text) => {
+                // Find the first colon, and return the rest of the string after it.
+                // If no colon is found, return the original text.
+                const colonIndex = text.indexOf(':');
+                if (colonIndex !== -1) {
+                    return text.substring(colonIndex + 1).trim();
+                }
+                return text;
             };
 
             const fetchTubeStatus = async () => {
