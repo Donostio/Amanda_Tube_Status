@@ -18,7 +18,7 @@
             align-items: center;
             padding: 2rem;
             text-align: center;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1-px rgba(0, 0, 0, 0.06);
             border-radius: 1rem;
             transition: all 0.3s ease;
             height: 100%;
@@ -40,37 +40,37 @@
 </head>
 <body class="bg-black text-white min-h-screen">
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 p-4 md:p-8 min-h-screen">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 md:p-8 min-h-screen">
         <!-- Northern Line (Top Left) -->
         <div class="line-section bg-black" id="northern-section">
             <a href="https://tfl.gov.uk/tube-dlr-overground/status/#northern" target="_blank">
-                <img src="./images/Northern_line_roundel.svg.png" id="northern-logo" alt="Northern Line Roundel" class="w-48 mb-4">
+                <img src="./images/Northern_line_roundel.svg.png" id="northern-logo" alt="Northern Line Roundel" class="w-32 mb-2">
             </a>
             <div class="text-center">
-                <p id="northern-status" class="text-6xl md:text-5xl lg:text-6xl font-extrabold text-white mb-2"></p>
-                <p id="northern-detail" class="text-xl font-bold text-gray-200"></p>
+                <p id="northern-status" class="text-4xl font-extrabold text-white mb-1"></p>
+                <p id="northern-detail" class="text-lg font-bold text-gray-200"></p>
             </div>
         </div>
 
         <!-- Victoria Line (Top Right) -->
         <div class="line-section bg-black" id="victoria-section">
             <a href="https://tfl.gov.uk/tube-dlr-overground/status/#victoria" target="_blank">
-                <img src="./images/Victoria_line_roundel.svg.png" id="victoria-logo" alt="Victoria Line Roundel" class="w-48 mb-4">
+                <img src="./images/Victoria_line_roundel.svg.png" id="victoria-logo" alt="Victoria Line Roundel" class="w-32 mb-2">
             </a>
             <div class="text-center">
-                <p id="victoria-status" class="text-6xl md:text-5xl lg:text-6xl font-extrabold text-white mb-2"></p>
-                <p id="victoria-detail" class="text-xl font-bold text-gray-200"></p>
+                <p id="victoria-status" class="text-4xl font-extrabold text-white mb-1"></p>
+                <p id="victoria-detail" class="text-lg font-bold text-gray-200"></p>
             </div>
         </div>
 
         <!-- Bakerloo Line (Bottom Left) -->
         <div class="line-section bg-black" id="bakerloo-section">
             <a href="https://tfl.gov.uk/tube-dlr-overground/status/#bakerloo" target="_blank">
-                <img src="./images/Bakerloo_line_roundel.svg.png" id="bakerloo-logo" alt="Bakerloo Line Roundel" class="w-48 mb-4">
+                <img src="./images/Bakerloo_line_roundel.svg.png" id="bakerloo-logo" alt="Bakerloo Line Roundel" class="w-32 mb-2">
             </a>
             <div class="text-center">
-                <p id="bakerloo-status" class="text-6xl md:text-5xl lg:text-6xl font-extrabold text-white mb-2"></p>
-                <p id="bakerloo-detail" class="text-xl font-bold text-gray-200"></p>
+                <p id="bakerloo-status" class="text-4xl font-extrabold text-white mb-1"></p>
+                <p id="bakerloo-detail" class="text-lg font-bold text-gray-200"></p>
             </div>
         </div>
 
@@ -108,7 +108,6 @@
             const victoriaLogo = document.getElementById('victoria-logo');
             const bakerlooLogo = document.getElementById('bakerloo-logo');
 
-            // Reverted to local image paths as requested
             const imageMap = {
                 northern: './images/Northern_line_roundel.svg.png',
                 bakerloo: './images/Bakerloo_line_roundel.svg.png',
@@ -123,17 +122,14 @@
                 if (lowerStatus.includes('minor delays') || lowerStatus.includes('part suspended') || lowerStatus.includes('planned closure')) {
                     return 'text-orange-400';
                 }
+                // Updated to use a brighter red
                 if (lowerStatus.includes('severe delays') || lowerStatus.includes('suspended') || lowerStatus.includes('no service')) {
-                    return 'text-rose-400';
+                    return 'text-red-500';
                 }
                 return 'text-gray-400';
-            }; // Fixed the missing closing brace here
+            };
             
-            // Utility function to remove the line name and colon from the start of the detail message
-            // This function is now correctly placed outside the getStatusColor function
             const cleanDetailText = (text) => {
-                // Find the first colon, and return the rest of the string after it.
-                // If no colon is found, return the original text.
                 const colonIndex = text.indexOf(':');
                 if (colonIndex !== -1) {
                     return text.substring(colonIndex + 1).trim();
@@ -146,7 +142,6 @@
                 errorMessage.classList.add('hidden');
 
                 try {
-                    // Update logos with real images from the local 'images' folder
                     northernLogo.src = imageMap.northern;
                     victoriaLogo.src = imageMap.victoria;
                     bakerlooLogo.src = imageMap.bakerloo;
@@ -166,19 +161,16 @@
                         return;
                     }
                     
-                    // Update Northern Line
                     northernStatus.textContent = data.northern.status;
-                    northernStatus.className = `text-6xl md:text-5xl lg:text-6xl font-extrabold mb-2 ${getStatusColor(data.northern.status)}`;
+                    northernStatus.className = `text-4xl font-extrabold mb-1 ${getStatusColor(data.northern.status)}`;
                     northernDetail.textContent = cleanDetailText(data.northern.reason);
 
-                    // Update Victoria Line
                     victoriaStatus.textContent = data.victoria.status;
-                    victoriaStatus.className = `text-6xl md:text-5xl lg:text-6xl font-extrabold mb-2 ${getStatusColor(data.victoria.status)}`;
+                    victoriaStatus.className = `text-4xl font-extrabold mb-1 ${getStatusColor(data.victoria.status)}`;
                     victoriaDetail.textContent = cleanDetailText(data.victoria.reason);
 
-                    // Update Bakerloo Line
                     bakerlooStatus.textContent = data.bakerloo.status;
-                    bakerlooStatus.className = `text-6xl md:text-5xl lg:text-6xl font-extrabold mb-2 ${getStatusColor(data.bakerloo.status)}`;
+                    bakerlooStatus.className = `text-4xl font-extrabold mb-1 ${getStatusColor(data.bakerloo.status)}`;
                     bakerlooDetail.textContent = cleanDetailText(data.bakerloo.reason);
 
                 } catch (error) {
