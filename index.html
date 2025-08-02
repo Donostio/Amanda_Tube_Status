@@ -9,7 +9,7 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #1a202c; /* A darker, modern background */
+            background-color: #000000; /* Solid black background */
         }
         .line-section {
             display: flex;
@@ -38,11 +38,11 @@
         }
     </style>
 </head>
-<body class="bg-gray-900 text-white min-h-screen">
+<body class="bg-black text-white min-h-screen">
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8 p-4 md:p-8 min-h-screen">
         <!-- Northern Line (Top Left) -->
-        <div class="line-section bg-gray-800" id="northern-section">
+        <div class="line-section bg-black" id="northern-section">
             <img src="./images/Northern_line_roundel.svg.png" id="northern-logo" alt="Northern Line Roundel" class="w-48 mb-4">
             <div class="text-center">
                 <p id="northern-status" class="text-6xl md:text-5xl lg:text-6xl font-extrabold text-white mb-2"></p>
@@ -51,7 +51,7 @@
         </div>
 
         <!-- Victoria Line (Top Right) -->
-        <div class="line-section bg-gray-800" id="victoria-section">
+        <div class="line-section bg-black" id="victoria-section">
             <img src="./images/Victoria_line_roundel.svg.png" id="victoria-logo" alt="Victoria Line Roundel" class="w-48 mb-4">
             <div class="text-center">
                 <p id="victoria-status" class="text-6xl md:text-5xl lg:text-6xl font-extrabold text-white mb-2"></p>
@@ -60,7 +60,7 @@
         </div>
 
         <!-- Bakerloo Line (Bottom Left) -->
-        <div class="line-section bg-gray-800" id="bakerloo-section">
+        <div class="line-section bg-black" id="bakerloo-section">
             <img src="./images/Bakerloo_line_roundel.svg.png" id="bakerloo-logo" alt="Bakerloo Line Roundel" class="w-48 mb-4">
             <div class="text-center">
                 <p id="bakerloo-status" class="text-6xl md:text-5xl lg:text-6xl font-extrabold text-white mb-2"></p>
@@ -69,7 +69,7 @@
         </div>
 
         <!-- Empty bottom-right section -->
-        <div class="line-section bg-gray-800 flex-col" id="placeholder-section">
+        <div class="line-section bg-black flex-col" id="placeholder-section">
             <div id="loading" class="text-center text-blue-400">
                 <svg class="animate-spin h-8 w-8 text-blue-400 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -179,3 +179,4 @@
     </script>
 </body>
 </html>
+
