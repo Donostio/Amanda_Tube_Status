@@ -9,80 +9,123 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
+            background-color: #1a202c; /* A darker, modern background */
         }
-        .container {
-            max-width: 640px;
-        }
-        .status-card {
+        .line-section {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            text-align: center;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            border-radius: 0.5rem;
+            border-radius: 1rem;
             transition: all 0.3s ease;
+            height: 100%;
         }
-        .status-card:hover {
-            transform: translateY(-5px);
+        .line-section:hover {
+            transform: scale(1.02);
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
-        .northern-bg { background-color: #000000; }
-        .bakerloo-bg { background-color: #996633; }
-        .victoria-bg { background-color: #0099cc; }
     </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
-    <div class="container mx-auto p-6 bg-white rounded-lg shadow-xl">
-        <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">TFL Tube Status</h1>
+<body class="bg-gray-900 text-white min-h-screen">
 
-        <div id="status-container" class="space-y-4">
-            <!-- Cards for each line will be injected here by JavaScript -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 p-4 md:p-8 min-h-screen">
+        <!-- Northern Line (Top Left) -->
+        <div class="line-section bg-gray-800" id="northern-section">
+            <img src="https://placehold.co/200x200/000/fff?text=Northern" id="northern-logo" alt="Northern Line Roundel" class="w-48 mb-4">
+            <div class="text-center">
+                <p id="northern-status" class="text-6xl md:text-5xl lg:text-6xl font-extrabold text-white mb-2"></p>
+                <p id="northern-detail" class="text-lg font-bold text-gray-200"></p>
+            </div>
         </div>
 
-        <div id="loading" class="text-center text-gray-500 mt-6">
-            Fetching the latest status...
+        <!-- Victoria Line (Top Right) -->
+        <div class="line-section bg-gray-800" id="victoria-section">
+            <img src="https://placehold.co/200x200/0099cc/fff?text=Victoria" id="victoria-logo" alt="Victoria Line Roundel" class="w-48 mb-4">
+            <div class="text-center">
+                <p id="victoria-status" class="text-6xl md:text-5xl lg:text-6xl font-extrabold text-white mb-2"></p>
+                <p id="victoria-detail" class="text-lg font-bold text-gray-200"></p>
+            </div>
         </div>
 
-        <div id="error-message" class="hidden text-center text-red-500 mt-6 font-semibold">
-            There was an error fetching the tube status. Please try again later.
+        <!-- Bakerloo Line (Bottom Left) -->
+        <div class="line-section bg-gray-800" id="bakerloo-section">
+            <img src="https://placehold.co/200x200/996633/fff?text=Bakerloo" id="bakerloo-logo" alt="Bakerloo Line Roundel" class="w-48 mb-4">
+            <div class="text-center">
+                <p id="bakerloo-status" class="text-6xl md:text-5xl lg:text-6xl font-extrabold text-white mb-2"></p>
+                <p id="bakerloo-detail" class="text-lg font-bold text-gray-200"></p>
+            </div>
+        </div>
+
+        <!-- Updates/Footer (Bottom Right) -->
+        <div class="line-section bg-gray-800 flex-col" id="updates-section">
+            <div id="loading" class="text-center text-blue-400">
+                <svg class="animate-spin h-8 w-8 text-blue-400 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p class="mt-2 text-gray-400">Fetching the latest status...</p>
+            </div>
+            <div id="error-message" class="hidden text-center text-red-400 font-semibold">
+                There was an error fetching the tube status. Please try again later.
+            </div>
+            <p class="text-lg font-semibold text-white mt-8">TFL Updates</p>
+            <p class="text-sm text-gray-400 mt-1">Status refreshed every 5 minutes.</p>
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // Replace this with the URL of your deployed Google Apps Script web app
-            const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz93SETd-tutnnhiGfttZ5klQHuu25E0KJb5Ra1eahbODtzPbqmBKCCMFi9OSk5JTK3/exec';
+            const APPS_SCRIPT_URL = 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
 
-            const statusContainer = document.getElementById('status-container');
             const loadingIndicator = document.getElementById('loading');
             const errorMessage = document.getElementById('error-message');
 
-            const getLineColor = (lineName) => {
-                const colors = {
-                    northern: 'northern-bg',
-                    bakerloo: 'bakerloo-bg',
-                    victoria: 'victoria-bg',
-                };
-                return colors[lineName.toLowerCase()] || 'bg-gray-400';
+            const northernStatus = document.getElementById('northern-status');
+            const northernDetail = document.getElementById('northern-detail');
+            const victoriaStatus = document.getElementById('victoria-status');
+            const victoriaDetail = document.getElementById('victoria-detail');
+            const bakerlooStatus = document.getElementById('bakerloo-status');
+            const bakerlooDetail = document.getElementById('bakerloo-detail');
+            
+            const northernLogo = document.getElementById('northern-logo');
+            const victoriaLogo = document.getElementById('victoria-logo');
+            const bakerlooLogo = document.getElementById('bakerloo-logo');
+
+            // Set the correct image URLs for the roundels
+            const imageMap = {
+                northern: 'https://storage.googleapis.com/gwm-artifacts/6ebc3738-340f-4a05-8bab-542d31c11f12/Northern_line_roundel.svg.png',
+                bakerloo: 'https://storage.googleapis.com/gwm-artifacts/1d8522a0-0b8e-4a1a-81f2-5e3ee4ee32c3/Bakerloo_line_roundel.svg.png',
+                victoria: 'https://storage.googleapis.com/gwm-artifacts/9cf88f95-803c-4ca3-b878-64e81efcffe7/Victoria_line_roundel.svg.png'
             };
 
             const getStatusColor = (status) => {
                 const lowerStatus = status.toLowerCase();
                 if (lowerStatus.includes('good service')) {
-                    return 'text-green-600';
+                    return 'text-emerald-400';
                 }
                 if (lowerStatus.includes('minor delays') || lowerStatus.includes('part suspended') || lowerStatus.includes('planned closure')) {
-                    return 'text-yellow-500';
+                    return 'text-orange-400';
                 }
                 if (lowerStatus.includes('severe delays') || lowerStatus.includes('suspended') || lowerStatus.includes('no service')) {
-                    return 'text-red-600';
+                    return 'text-rose-400';
                 }
-                return 'text-gray-500';
+                return 'text-gray-400';
             };
 
             const fetchTubeStatus = async () => {
                 loadingIndicator.classList.remove('hidden');
                 errorMessage.classList.add('hidden');
-                statusContainer.innerHTML = '';
 
                 try {
+                    // Update logos with real images
+                    northernLogo.src = imageMap.northern;
+                    victoriaLogo.src = imageMap.victoria;
+                    bakerlooLogo.src = imageMap.bakerloo;
+
                     const response = await fetch(APPS_SCRIPT_URL, { redirect: 'follow' });
 
                     if (!response.ok) {
@@ -97,27 +140,22 @@
                         errorMessage.classList.remove('hidden');
                         return;
                     }
+                    
+                    // Update Northern Line
+                    northernStatus.textContent = data.northern.status;
+                    northernStatus.className = `text-6xl md:text-5xl lg:text-6xl font-extrabold mb-2 ${getStatusColor(data.northern.status)}`;
+                    northernDetail.textContent = data.northern.reason;
 
-                    for (const line in data) {
-                        const lineData = data[line];
-                        const lineName = lineData.name;
-                        const status = lineData.status;
-                        const reason = lineData.reason;
+                    // Update Victoria Line
+                    victoriaStatus.textContent = data.victoria.status;
+                    victoriaStatus.className = `text-6xl md:text-5xl lg:text-6xl font-extrabold mb-2 ${getStatusColor(data.victoria.status)}`;
+                    victoriaDetail.textContent = data.victoria.reason;
 
-                        const cardHtml = `
-                            <div class="status-card bg-white p-4 rounded-lg flex items-center">
-                                <div class="w-12 h-12 rounded-full ${getLineColor(lineName)} flex items-center justify-center text-white font-bold text-lg mr-4">
-                                    ${lineName.charAt(0).toUpperCase()}
-                                </div>
-                                <div class="flex-grow">
-                                    <h2 class="text-xl font-semibold text-gray-800 capitalize">${lineName} Line</h2>
-                                    <p class="text-sm font-medium ${getStatusColor(status)}">${status}</p>
-                                    ${reason ? `<p class="text-xs text-gray-500 mt-1">${reason}</p>` : ''}
-                                </div>
-                            </div>
-                        `;
-                        statusContainer.innerHTML += cardHtml;
-                    }
+                    // Update Bakerloo Line
+                    bakerlooStatus.textContent = data.bakerloo.status;
+                    bakerlooStatus.className = `text-6xl md:text-5xl lg:text-6xl font-extrabold mb-2 ${getStatusColor(data.bakerloo.status)}`;
+                    bakerlooDetail.textContent = data.bakerloo.reason;
+
                 } catch (error) {
                     console.error('Fetch error:', error);
                     errorMessage.textContent = 'There was an error fetching the tube status. Please check the console for more details.';
@@ -128,7 +166,7 @@
             };
 
             fetchTubeStatus();
-            // Refresh every 5 minutes
+            // Refresh every 5 minutes (300,000 milliseconds)
             setInterval(fetchTubeStatus, 300000);
         });
     </script>
