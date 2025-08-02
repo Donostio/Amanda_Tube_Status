@@ -3,221 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>London Tube Status</title>
-    <!-- Tailwind CSS CDN -->
+    <title>TFL Tube Status</title>
+    <!-- Use Tailwind CSS for a clean, mobile-first design -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f7fafc;
+            background-color: #f3f4f6;
         }
         .container {
-            max-width: 1000px;
-            padding: 1rem;
+            max-width: 640px;
         }
-        .status-box {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background-color: #ffffff;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            border-radius: 1rem;
+        .status-card {
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border-radius: 0.5rem;
             transition: all 0.3s ease;
         }
-        .status-box:hover {
-            transform: translateY(-2px);
+        .status-card:hover {
+            transform: translateY(-5px);
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
-        .status-indicator {
-            width: 2rem;
-            height: 2rem;
-            border-radius: 9999px; /* full circle */
-            flex-shrink: 0;
-            margin-right: 1rem;
-        }
-        .status-description {
-            font-weight: 600;
-            text-transform: capitalize;
-            color: #4a5568;
-        }
-        .line-name {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #2d3748;
-        }
-        .detail-message {
-            font-size: 0.875rem;
-            color: #718096;
-            margin-top: 0.5rem;
-        }
-        /* Custom colors based on your slides for better visual feedback */
-        .status-good {
-            background-color: #48bb78; /* Green */
-        }
-        .status-minor {
-            background-color: #f6e05e; /* Yellow */
-        }
-        .status-severe, .status-suspended {
-            background-color: #ef4444; /* Red */
-        }
-        .status-planned {
-            background-color: #f472b6; /* Pinkish-Red from your slide image */
-        }
-        .status-unknown {
-            background-color: #a0aec0; /* Gray */
-        }
+        .northern-bg { background-color: #000000; }
+        .bakerloo-bg { background-color: #996633; }
+        .victoria-bg { background-color: #0099cc; }
     </style>
 </head>
-<body class="bg-gray-100 p-4 min-h-screen flex items-center justify-center">
-    <div class="container mx-auto p-4 bg-white rounded-xl shadow-lg">
-        <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">
-            London Tube Status
-        </h1>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+    <div class="container mx-auto p-6 bg-white rounded-lg shadow-xl">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">TFL Tube Status</h1>
+
         <div id="status-container" class="space-y-4">
-            <!-- Loading indicator will be displayed initially -->
-            <div id="loading" class="text-center text-gray-500 font-medium p-8">
-                <svg class="animate-spin h-8 w-8 text-gray-400 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <p class="mt-2">Fetching the latest status...</p>
-            </div>
-            <!-- Dynamic content will be injected here by JavaScript -->
+            <!-- Cards for each line will be injected here by JavaScript -->
+        </div>
+
+        <div id="loading" class="text-center text-gray-500 mt-6">
+            Fetching the latest status...
+        </div>
+
+        <div id="error-message" class="hidden text-center text-red-500 mt-6 font-semibold">
+            There was an error fetching the tube status. Please try again later.
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // Replace this with the URL of your deployed Google Apps Script web app
+            const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz93SETd-tutnnhiGfttZ5klQHuu25E0KJb5Ra1eahbODtzPbqmBKCCMFi9OSk5JTK3/exec';
+
             const statusContainer = document.getElementById('status-container');
             const loadingIndicator = document.getElementById('loading');
-            
-            // --- IMPORTANT: PASTE YOUR DEPLOYED GOOGLE APPS SCRIPT URL HERE ---
-            const GOOGLE_APPS_SCRIPT_URL = 'PASTE_YOUR_WEB_APP_URL_HERE';
+            const errorMessage = document.getElementById('error-message');
 
-            const linesToMonitor = ['northern', 'bakerloo', 'victoria'];
+            const getLineColor = (lineName) => {
+                const colors = {
+                    northern: 'northern-bg',
+                    bakerloo: 'bakerloo-bg',
+                    victoria: 'victoria-bg',
+                };
+                return colors[lineName.toLowerCase()] || 'bg-gray-400';
+            };
 
-            /**
-             * Fetches the status for a specific line from the Google Apps Script proxy.
-             * @param {string} lineId The ID of the line to fetch (e.g., 'northern').
-             * @returns {Promise<Array<Object>>} - A promise that resolves with the line's status data.
-             */
-            async function fetchLineStatus(lineId) {
-                if (GOOGLE_APPS_SCRIPT_URL === 'PASTE_YOUR_WEB_APP_URL_HERE') {
-                    throw new Error("Google Apps Script URL is not configured. Please paste your deployed web app URL into the code.");
-                }
-
-                const apiUrl = `${GOOGLE_APPS_SCRIPT_URL}?line=${lineId}`;
-
-                let retries = 0;
-                const maxRetries = 5;
-                let delay = 1000;
-                
-                while (retries < maxRetries) {
-                    try {
-                        const response = await fetch(apiUrl);
-                        const data = await response.json();
-                        
-                        // Check if the response from the Apps Script is an error object.
-                        if (data && data.error) {
-                            throw new Error(`Apps Script Error: ${data.error}`);
-                        }
-
-                        // The API returns an array, so we expect the first element to be our data.
-                        if (Array.isArray(data) && data.length > 0) {
-                            return data[0]; 
-                        } else {
-                            // If the array is empty, we handle it as a specific error.
-                            throw new Error(`No status information found for line: ${lineId}.`);
-                        }
-                    } catch (error) {
-                        console.error(`Attempt ${retries + 1}: Could not fetch status for ${lineId}. Error: ${error.message}`);
-                        retries++;
-                        if (retries < maxRetries) {
-                            console.log(`Retrying in ${delay}ms...`);
-                            await new Promise(resolve => setTimeout(resolve, delay));
-                            delay *= 2;
-                        } else {
-                            throw new Error(`Failed to fetch status for ${lineId} after ${maxRetries} retries. Check your Apps Script logs for more details.`);
-                        }
-                    }
-                }
-            }
-
-            /**
-             * Renders a single status box for a given tube line.
-             * @param {Object} lineData - The data object for a single line from the API.
-             */
-            function renderStatusBox(lineData) {
-                const lineName = lineData.lineName;
-                const statusDescription = lineData.statusDescription || 'Unknown Status';
-                const detailMessage = lineData.disruptionText || '';
-
-                let statusClass = 'status-unknown';
-                const lowerStatus = statusDescription.toLowerCase();
-
+            const getStatusColor = (status) => {
+                const lowerStatus = status.toLowerCase();
                 if (lowerStatus.includes('good service')) {
-                    statusClass = 'status-good';
-                } else if (lowerStatus.includes('minor delays')) {
-                    statusClass = 'status-minor';
-                } else if (lowerStatus.includes('severe delays') || lowerStatus.includes('suspended') || lowerStatus.includes('no service')) {
-                    statusClass = 'status-severe';
-                } else if (lowerStatus.includes('planned closure')) {
-                    statusClass = 'status-planned';
+                    return 'text-green-600';
                 }
+                if (lowerStatus.includes('minor delays') || lowerStatus.includes('part suspended') || lowerStatus.includes('planned closure')) {
+                    return 'text-yellow-500';
+                }
+                if (lowerStatus.includes('severe delays') || lowerStatus.includes('suspended') || lowerStatus.includes('no service')) {
+                    return 'text-red-600';
+                }
+                return 'text-gray-500';
+            };
 
-                // Create the HTML for the status box
-                const box = document.createElement('div');
-                box.className = 'status-box flex items-start';
-                
-                box.innerHTML = `
-                    <div class="status-indicator ${statusClass}"></div>
-                    <div class="flex-grow">
-                        <h2 class="line-name">${lineName}</h2>
-                        <p class="status-description">${statusDescription}</p>
-                        ${detailMessage ? `<p class="detail-message mt-1 text-gray-600">${detailMessage}</p>` : ''}
-                    </div>
-                `;
-                statusContainer.appendChild(box);
-            }
+            const fetchTubeStatus = async () => {
+                loadingIndicator.classList.remove('hidden');
+                errorMessage.classList.add('hidden');
+                statusContainer.innerHTML = '';
 
-            /**
-             * Main function to fetch and render all line statuses.
-             */
-            async function displayAllStatuses() {
                 try {
-                    const fetchPromises = linesToMonitor.map(lineId => fetchLineStatus(lineId));
-                    const allLineStatuses = await Promise.allSettled(fetchPromises);
-                    
-                    // Clear existing content and hide loading indicator
-                    statusContainer.innerHTML = '';
-                    
-                    const successfulStatuses = allLineStatuses
-                        .filter(result => result.status === 'fulfilled' && result.value)
-                        .map(result => result.value);
+                    const response = await fetch(APPS_SCRIPT_URL, { redirect: 'follow' });
 
-                    if (successfulStatuses.length === 0) {
-                        statusContainer.innerHTML = `<p class="text-center text-gray-500 font-medium p-8">No status information could be retrieved. Please check your Google Apps Script URL and API key.</p>`;
-                    } else {
-                        successfulStatuses.forEach(lineData => {
-                            renderStatusBox(lineData);
-                        });
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
                     }
 
-                    // Log any failed promises for debugging.
-                    const failedPromises = allLineStatuses.filter(result => result.status === 'rejected');
-                    if (failedPromises.length > 0) {
-                        console.error("Failed to fetch one or more line statuses:", failedPromises);
+                    const data = await response.json();
+
+                    if (data.error) {
+                        console.error('Apps Script Error:', data.error, data.details);
+                        errorMessage.textContent = `Error: ${data.error}`;
+                        errorMessage.classList.remove('hidden');
+                        return;
+                    }
+
+                    for (const line in data) {
+                        const lineData = data[line];
+                        const lineName = lineData.name;
+                        const status = lineData.status;
+                        const reason = lineData.reason;
+
+                        const cardHtml = `
+                            <div class="status-card bg-white p-4 rounded-lg flex items-center">
+                                <div class="w-12 h-12 rounded-full ${getLineColor(lineName)} flex items-center justify-center text-white font-bold text-lg mr-4">
+                                    ${lineName.charAt(0).toUpperCase()}
+                                </div>
+                                <div class="flex-grow">
+                                    <h2 class="text-xl font-semibold text-gray-800 capitalize">${lineName} Line</h2>
+                                    <p class="text-sm font-medium ${getStatusColor(status)}">${status}</p>
+                                    ${reason ? `<p class="text-xs text-gray-500 mt-1">${reason}</p>` : ''}
+                                </div>
+                            </div>
+                        `;
+                        statusContainer.innerHTML += cardHtml;
                     }
                 } catch (error) {
-                    console.error('An unhandled error occurred:', error);
-                    statusContainer.innerHTML = `<p class="text-center text-red-500 font-medium p-8">An unexpected error occurred: ${error.message}. Please check the console for details.</p>`;
+                    console.error('Fetch error:', error);
+                    errorMessage.textContent = 'There was an error fetching the tube status. Please check the console for more details.';
+                    errorMessage.classList.remove('hidden');
+                } finally {
+                    loadingIndicator.classList.add('hidden');
                 }
-            }
+            };
 
-            // Run the main function on page load
-            displayAllStatuses();
+            fetchTubeStatus();
+            // Refresh every 5 minutes
+            setInterval(fetchTubeStatus, 300000);
         });
     </script>
 </body>
