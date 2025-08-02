@@ -43,7 +43,8 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8 p-4 md:p-8 min-h-screen">
         <!-- Northern Line (Top Left) -->
         <div class="line-section bg-gray-800" id="northern-section">
-            <img src="./images/Northern_line_roundel.svg.png" id="northern-logo" alt="Northern Line Roundel" class="w-48 mb-4">            <div class="text-center">
+            <img src="./images/Northern_line_roundel.svg.png" id="northern-logo" alt="Northern Line Roundel" class="w-48 mb-4">
+            <div class="text-center">
                 <p id="northern-status" class="text-6xl md:text-5xl lg:text-6xl font-extrabold text-white mb-2"></p>
                 <p id="northern-detail" class="text-xl font-bold text-gray-200"></p>
             </div>
@@ -51,7 +52,7 @@
 
         <!-- Victoria Line (Top Right) -->
         <div class="line-section bg-gray-800" id="victoria-section">
-            <img src="https://storage.googleapis.com/gwm-artifacts/9cf88f95-803c-4ca3-b878-64e81efcffe7/Victoria_line_roundel.svg.png" id="victoria-logo" alt="Victoria Line Roundel" class="w-48 mb-4">
+            <img src="./images/Victoria_line_roundel.svg.png" id="victoria-logo" alt="Victoria Line Roundel" class="w-48 mb-4">
             <div class="text-center">
                 <p id="victoria-status" class="text-6xl md:text-5xl lg:text-6xl font-extrabold text-white mb-2"></p>
                 <p id="victoria-detail" class="text-xl font-bold text-gray-200"></p>
@@ -60,7 +61,7 @@
 
         <!-- Bakerloo Line (Bottom Left) -->
         <div class="line-section bg-gray-800" id="bakerloo-section">
-            <img src="https://storage.googleapis.com/gwm-artifacts/1d8522a0-0b8e-4a1a-81f2-5e3ee4ee32c3/Bakerloo_line_roundel.svg.png" id="bakerloo-logo" alt="Bakerloo Line Roundel" class="w-48 mb-4">
+            <img src="./images/Bakerloo_line_roundel.svg.png" id="bakerloo-logo" alt="Bakerloo Line Roundel" class="w-48 mb-4">
             <div class="text-center">
                 <p id="bakerloo-status" class="text-6xl md:text-5xl lg:text-6xl font-extrabold text-white mb-2"></p>
                 <p id="bakerloo-detail" class="text-xl font-bold text-gray-200"></p>
@@ -101,11 +102,11 @@
             const victoriaLogo = document.getElementById('victoria-logo');
             const bakerlooLogo = document.getElementById('bakerloo-logo');
 
-            // Set the correct image URLs for the roundels
+            // Set the correct image URLs for the roundels using the new local paths
             const imageMap = {
-                northern: 'https://storage.googleapis.com/gwm-artifacts/7550b18f-6cad-4c1b-ab65-909169ad53ed/Northern_line_roundel.svg.png',
-                bakerloo: 'https://storage.googleapis.com/gwm-artifacts/1d8522a0-0b8e-4a1a-81f2-5e3ee4ee32c3/Bakerloo_line_roundel.svg.png',
-                victoria: 'https://storage.googleapis.com/gwm-artifacts/9cf88f95-803c-4ca3-b878-64e81efcffe7/Victoria_line_roundel.svg.png'
+                northern: './images/Northern_line_roundel.svg.png',
+                bakerloo: './images/Bakerloo_line_roundel.svg.png',
+                victoria: './images/Victoria_line_roundel.svg.png'
             };
 
             const getStatusColor = (status) => {
@@ -127,7 +128,7 @@
                 errorMessage.classList.add('hidden');
 
                 try {
-                    // Update logos with real images
+                    // Update logos with real images from the local 'images' folder
                     northernLogo.src = imageMap.northern;
                     victoriaLogo.src = imageMap.victoria;
                     bakerlooLogo.src = imageMap.bakerloo;
