@@ -128,4 +128,60 @@
             const cleanDetailText = (text) => {
                 const colonIndex = text.indexOf(':');
                 if (colonIndex !== -1) {
-                    return text.substring
+                    return text.substring(colonIndex + 1).trim();
+                }
+                return text;
+            };
+
+            const fetchTubeStatus = async () => {
+                loadingIndicator.classList.remove('hidden');
+                errorMessage.classList.add('hidden');
+
+                try {
+                    northernLogo.src = imageMap.northern;
+                    victoriaLogo.src = imageMap.victoria;
+                    bakerlooLogo.src = imageMap.bakerloo;
+
+                    const response = await fetch(APPS_SCRIPT_URL, { redirect: 'follow' });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+
+                    if (data.error) {
+                        console.error('Apps Script Error:', data.error, data.details);
+                        errorMessage.textContent = `Error: ${data.error}`;
+                        errorMessage.classList.remove('hidden');
+                        return;
+                    }
+                    
+                    northernStatus.textContent = data.northern.status;
+                    northernStatus.className = `text-4xl font-extrabold mb-1 ${getStatusColor(data.northern.status)}`;
+                    northernDetail.textContent = cleanDetailText(data.northern.reason);
+
+                    victoriaStatus.textContent = data.victoria.status;
+                    victoriaStatus.className = `text-4xl font-extrabold mb-1 ${getStatusColor(data.victoria.status)}`;
+                    victoriaDetail.textContent = cleanDetailText(data.victoria.reason);
+
+                    bakerlooStatus.textContent = data.bakerloo.status;
+                    bakerlooStatus.className = `text-4xl font-extrabold mb-1 ${getStatusColor(data.bakerloo.status)}`;
+                    bakerlooDetail.textContent = cleanDetailText(data.bakerloo.reason);
+
+                } catch (error) {
+                    console.error('Fetch error:', error);
+                    errorMessage.textContent = 'There was an error fetching the tube status. Please check your Apps Script URL and deployment permissions.';
+                    errorMessage.classList.remove('hidden');
+                } finally {
+                    loadingIndicator.classList.add('hidden');
+                }
+            };
+
+            fetchTubeStatus();
+            // Refresh every 5 minutes (300,000 milliseconds)
+            setInterval(fetchTubeStatus, 300000);
+        });
+    </script>
+</body>
+</html>
