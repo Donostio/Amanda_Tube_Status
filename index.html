@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TFL Tube Status</title>
-    <!-- Use Tailwind CSS for a clean, mobile-first design -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
@@ -41,10 +40,9 @@
 <body class="bg-black text-white min-h-screen">
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 md:p-8 min-h-screen">
-        <!-- Northern Line (Top Left) -->
         <div class="line-section bg-black" id="northern-section">
             <a href="https://tfl.gov.uk/tube-dlr-overground/status/#northern" target="_blank">
-                <img src="./images/Northern_line_roundel.svg.png" id="northern-logo" alt="Northern Line Roundel" class="w-32 mb-2">
+                <img src="./images/Northern_line_roundel.svg.png" id="northern-logo" alt="Northern Line Roundel" class="w-24 mb-2 !mb-0">
             </a>
             <div class="text-center">
                 <p id="northern-status" class="text-4xl font-extrabold text-white mb-1"></p>
@@ -52,10 +50,9 @@
             </div>
         </div>
 
-        <!-- Victoria Line (Top Right) -->
         <div class="line-section bg-black" id="victoria-section">
             <a href="https://tfl.gov.uk/tube-dlr-overground/status/#victoria" target="_blank">
-                <img src="./images/Victoria_line_roundel.svg.png" id="victoria-logo" alt="Victoria Line Roundel" class="w-32 mb-2">
+                <img src="./images/Victoria_line_roundel.svg.png" id="victoria-logo" alt="Victoria Line Roundel" class="w-24 mb-2 !mb-0">
             </a>
             <div class="text-center">
                 <p id="victoria-status" class="text-4xl font-extrabold text-white mb-1"></p>
@@ -63,10 +60,9 @@
             </div>
         </div>
 
-        <!-- Bakerloo Line (Bottom Left) -->
         <div class="line-section bg-black" id="bakerloo-section">
             <a href="https://tfl.gov.uk/tube-dlr-overground/status/#bakerloo" target="_blank">
-                <img src="./images/Bakerloo_line_roundel.svg.png" id="bakerloo-logo" alt="Bakerloo Line Roundel" class="w-32 mb-2">
+                <img src="./images/Bakerloo_line_roundel.svg.png" id="bakerloo-logo" alt="Bakerloo Line Roundel" class="w-24 mb-2 !mb-0">
             </a>
             <div class="text-center">
                 <p id="bakerloo-status" class="text-4xl font-extrabold text-white mb-1"></p>
@@ -74,8 +70,7 @@
             </div>
         </div>
 
-        <!-- Empty bottom-right section -->
-        <div class="line-section bg-black flex-col" id="placeholder-section">
+        <div class="line-section bg-black" id="placeholder-section">
             <div id="loading" class="text-center text-blue-400">
                 <svg class="animate-spin h-8 w-8 text-blue-400 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
