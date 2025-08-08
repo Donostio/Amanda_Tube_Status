@@ -15,7 +15,8 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 2rem;
+            /* Reduced padding for less vertical space */
+            padding: 1rem;
             text-align: center;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1-px rgba(0, 0, 0, 0.06);
             border-radius: 1rem;
@@ -39,10 +40,10 @@
 </head>
 <body class="bg-black text-white min-h-screen">
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 md:p-8 min-h-screen">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 p-4 md:p-8 min-h-screen">
         <div class="line-section bg-black" id="northern-section">
             <a href="https://tfl.gov.uk/tube-dlr-overground/status/#northern" target="_blank">
-                <img src="./images/Northern_line_roundel.svg.png" id="northern-logo" alt="Northern Line Roundel" class="w-24 mb-2 !mb-0">
+                <img src="./images/Northern_line_roundel.svg.png" id="northern-logo" alt="Northern Line Roundel" class="w-24">
             </a>
             <div class="text-center">
                 <p id="northern-status" class="text-4xl font-extrabold text-white mb-1"></p>
@@ -52,7 +53,7 @@
 
         <div class="line-section bg-black" id="victoria-section">
             <a href="https://tfl.gov.uk/tube-dlr-overground/status/#victoria" target="_blank">
-                <img src="./images/Victoria_line_roundel.svg.png" id="victoria-logo" alt="Victoria Line Roundel" class="w-24 mb-2 !mb-0">
+                <img src="./images/Victoria_line_roundel.svg.png" id="victoria-logo" alt="Victoria Line Roundel" class="w-24">
             </a>
             <div class="text-center">
                 <p id="victoria-status" class="text-4xl font-extrabold text-white mb-1"></p>
@@ -62,7 +63,7 @@
 
         <div class="line-section bg-black" id="bakerloo-section">
             <a href="https://tfl.gov.uk/tube-dlr-overground/status/#bakerloo" target="_blank">
-                <img src="./images/Bakerloo_line_roundel.svg.png" id="bakerloo-logo" alt="Bakerloo Line Roundel" class="w-24 mb-2 !mb-0">
+                <img src="./images/Bakerloo_line_roundel.svg.png" id="bakerloo-logo" alt="Bakerloo Line Roundel" class="w-24">
             </a>
             <div class="text-center">
                 <p id="bakerloo-status" class="text-4xl font-extrabold text-white mb-1"></p>
@@ -127,60 +128,4 @@
             const cleanDetailText = (text) => {
                 const colonIndex = text.indexOf(':');
                 if (colonIndex !== -1) {
-                    return text.substring(colonIndex + 1).trim();
-                }
-                return text;
-            };
-
-            const fetchTubeStatus = async () => {
-                loadingIndicator.classList.remove('hidden');
-                errorMessage.classList.add('hidden');
-
-                try {
-                    northernLogo.src = imageMap.northern;
-                    victoriaLogo.src = imageMap.victoria;
-                    bakerlooLogo.src = imageMap.bakerloo;
-
-                    const response = await fetch(APPS_SCRIPT_URL, { redirect: 'follow' });
-
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-
-                    const data = await response.json();
-
-                    if (data.error) {
-                        console.error('Apps Script Error:', data.error, data.details);
-                        errorMessage.textContent = `Error: ${data.error}`;
-                        errorMessage.classList.remove('hidden');
-                        return;
-                    }
-                    
-                    northernStatus.textContent = data.northern.status;
-                    northernStatus.className = `text-4xl font-extrabold mb-1 ${getStatusColor(data.northern.status)}`;
-                    northernDetail.textContent = cleanDetailText(data.northern.reason);
-
-                    victoriaStatus.textContent = data.victoria.status;
-                    victoriaStatus.className = `text-4xl font-extrabold mb-1 ${getStatusColor(data.victoria.status)}`;
-                    victoriaDetail.textContent = cleanDetailText(data.victoria.reason);
-
-                    bakerlooStatus.textContent = data.bakerloo.status;
-                    bakerlooStatus.className = `text-4xl font-extrabold mb-1 ${getStatusColor(data.bakerloo.status)}`;
-                    bakerlooDetail.textContent = cleanDetailText(data.bakerloo.reason);
-
-                } catch (error) {
-                    console.error('Fetch error:', error);
-                    errorMessage.textContent = 'There was an error fetching the tube status. Please check your Apps Script URL and deployment permissions.';
-                    errorMessage.classList.remove('hidden');
-                } finally {
-                    loadingIndicator.classList.add('hidden');
-                }
-            };
-
-            fetchTubeStatus();
-            // Refresh every 5 minutes (300,000 milliseconds)
-            setInterval(fetchTubeStatus, 300000);
-        });
-    </script>
-</body>
-</html>
+                    return text.substring
