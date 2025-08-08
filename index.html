@@ -173,3 +173,46 @@
                     if (data.error) {
                         console.error('Apps Script Error:', data.error, data.details);
                         errorMessage.textContent = `Error: ${data.error}`;
+                        errorMessage.classList.remove('hidden');
+                        return;
+                    }
+                    
+                    northernStatus.textContent = data.northern.status;
+                    northernStatus.className = `text-4xl font-extrabold mb-1 ${getStatusColor(data.northern.status)}`;
+                    northernDetail.textContent = cleanDetailText(data.northern.reason);
+
+                    victoriaStatus.textContent = data.victoria.status;
+                    victoriaStatus.className = `text-4xl font-extrabold mb-1 ${getStatusColor(data.victoria.status)}`;
+                    victoriaDetail.textContent = cleanDetailText(data.victoria.reason);
+
+                    bakerlooStatus.textContent = data.bakerloo.status;
+                    bakerlooStatus.className = `text-4xl font-extrabold mb-1 ${getStatusColor(data.bakerloo.status)}`;
+                    bakerlooDetail.textContent = cleanDetailText(data.bakerloo.reason);
+
+                    // Hide loading and show content sections
+                    placeholderSection.classList.add('hidden');
+                    northernSection.classList.remove('hidden');
+                    victoriaSection.classList.remove('hidden');
+                    bakerlooSection.classList.remove('hidden');
+
+
+                } catch (error) {
+                    console.error('Fetch error:', error);
+                    errorMessage.textContent = 'There was an error fetching the tube status. Please check your Apps Script URL and deployment permissions.';
+                    errorMessage.classList.remove('hidden');
+                    // Hide content sections on error, keep placeholder
+                    northernSection.classList.add('hidden');
+                    victoriaSection.classList.add('hidden');
+                    bakerlooSection.classList.add('hidden');
+                } finally {
+                    loadingIndicator.classList.add('hidden');
+                }
+            };
+
+            fetchTubeStatus();
+            // Refresh every 5 minutes (300,000 milliseconds)
+            setInterval(fetchTubeStatus, 300000);
+        });
+    </script>
+</body>
+</html>
